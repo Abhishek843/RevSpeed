@@ -1,4 +1,5 @@
 package com.revature.DAOImpl;
+import java.security.SecureRandom;
 
 import com.revature.DAO.UserDAO;
 import com.revature.Model.User;
@@ -64,5 +65,45 @@ public class UserDAOImpl implements UserDAO {
                 }
             }
         }
+    }
+    @Override
+    public boolean changePassword(String email, String newPassword) throws SQLException {
+        String sql = "UPDATE users SET password = ? WHERE email_id = ?";
+
+        try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+            String hashedPassword = BCrypt.hashpw(newPassword, BCrypt.gensalt());
+            preparedStatement.setString(1, hashedPassword);
+            preparedStatement.setString(2, email);
+
+            int rowsAffected = preparedStatement.executeUpdate();
+            return rowsAffected > 0;
+        }
+    }
+
+    @Override
+    public boolean requestForgottenPassword(String email) throws SQLException {
+        // Implement logic to generate and send a new password to the user's email
+        // For simplicity, let's just update the password in the database
+        String newPassword = generateRandomPassword();
+        System.out.println(newPassword);// You need to implement this method
+        return changePassword(email, newPassword);
+    }
+
+    private String generateRandomPassword() {
+        String characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()-_=+";
+
+        SecureRandom random = new SecureRandom();
+        StringBuilder password = new StringBuilder();
+
+        // Generate a password of a certain length (e.g., 12 characters)
+        int length = 12;
+
+        for (int i = 0; i < length; i++) {
+            int randomIndex = random.nextInt(characters.length());
+            password.append(characters.charAt(randomIndex));
+        }
+
+
+        return password.toString();
     }
 }

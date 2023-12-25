@@ -14,6 +14,9 @@ public class User {
         this.email = email;
         this.hashedPassword = hashedPassword;
     }
+    public  User() {
+        // Default constructor
+    }
 
     public String getName() {
         return name;
