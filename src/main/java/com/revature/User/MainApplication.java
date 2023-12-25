@@ -1,13 +1,15 @@
 package com.revature.User;
 
-import com.revature.Model.User;
 import com.revature.DAOImpl.UserDAOImpl;
-
+import com.revature.Model.User;
+import com.revature.Model.Plan;
 import java.sql.SQLException;
+import java.util.List;
 import java.util.Scanner;
 
 public class MainApplication {
-    private static User loggedInUser; // Added declaration
+    private static String loggedInUserEmail;
+    private static boolean loggedIn = false;
 
     public static void main(String[] args) {
         try {
@@ -15,54 +17,83 @@ public class MainApplication {
             Scanner scanner = new Scanner(System.in);
 
             while (true) {
-                System.out.println("\nUser Operations:");
-                System.out.println("1. Register");
-                System.out.println("2. Login");
-                System.out.println("3. Change Password (if logged in)");
-                System.out.println("4. Request Forgotten Password");
-                System.out.println("5. View Plans (if logged in)");
-                System.out.println("6. Exit");
-                System.out.print("Enter your choice: ");
+                if (!loggedIn) {
+                    System.out.println("\nUser Operations:");
+                    System.out.println("1. Register");
+                    System.out.println("2. Login");
+                    System.out.println("3. Change Password (if logged in)");
+                    System.out.println("4. Request Forgotten Password");
+                    System.out.println("6. Exit");
+                    System.out.print("Enter your choice: ");
 
-                int choice = scanner.nextInt();
+                    int choice = scanner.nextInt();
 
-                switch (choice) {
-                    case 1:
-                        registerUser(userDAO, scanner);
-                        break;
-                    case 2:
-                        loginUser(userDAO, scanner);
-                        break;
-                    case 3:
-                        if (loggedInUser == null) {
-                            changePassword(userDAO, scanner);
-                        } else {
-                            System.out.println("Please log in first.");
-                        }
-                        break;
-                    case 4:
-                        requestForgottenPassword(userDAO, scanner);
-                        break;
-                    case 5:
-                        if (loggedInUser != null) {
-                            viewPlans();
-                        } else {
-                            System.out.println("Please log in first.");
-                        }
-                        break;
-                    case 6:
-                        System.out.println("Exiting...");
-                        scanner.close();
-                        System.exit(0);
-                        break;
-                    default:
-                        System.out.println("Invalid choice. Please enter a number between 1 and 6.");
+                    switch (choice) {
+                        case 1:
+                            registerUser(userDAO, scanner);
+                            break;
+                        case 2:
+                            loginUser(userDAO, scanner);
+                            loggedIn = true;
+                            break;
+                        case 3:
+                            if (loggedInUserEmail == null) {
+                                System.out.println("Please log in first.");
+                            } else {
+                                changePassword(userDAO, scanner);
+                            }
+                            break;
+                        case 4:
+                            requestForgottenPassword(userDAO, scanner);
+                            break;
+                        case 6:
+                            System.out.println("Exiting...");
+                            scanner.close();
+                            System.exit(0);
+                            break;
+                        default:
+                            System.out.println("Invalid choice. Please enter a number between 1 and 6.");
+                    }
+                } else {
+                    System.out.println("\nProfile Page Options:");
+                    System.out.println("5. View Plans");
+                    System.out.println("7. Update Name");
+                    System.out.println("8. Update Phone Number");
+                    System.out.println("9. Update Address");
+                    System.out.println("10. Logout");
+                    System.out.print("Enter your choice: ");
+
+                    int profileChoice = scanner.nextInt();
+
+                    switch (profileChoice) {
+                        case 5:
+                            viewPlans(userDAO);
+                            break;
+                        case 7:
+                            updateName(userDAO, scanner);
+                            break;
+                        case 8:
+                            updatePhoneNumber(userDAO, scanner);
+                            break;
+                        case 9:
+                            updateAddress(userDAO, scanner);
+                            break;
+                        case 10:
+                            loggedInUserEmail = null;
+                            loggedIn = false;
+                            System.out.println("Logged out successfully.");
+                            break;
+                        default:
+                            System.out.println("Invalid choice. Please enter a number between 5 and 10.");
+                            break;
+                    }
                 }
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
+
 
     private static void registerUser(UserDAOImpl userDAO, Scanner scanner) {
         try {
@@ -92,6 +123,7 @@ public class MainApplication {
 
             if (userDAO.loginUser(email_id, password)) {
                 System.out.println("Login successful!");
+                loggedInUserEmail = email_id;
                 boolean m = true; // You may need to retrieve the user details from the database
             } else {
                 System.out.println("Invalid email or password. Please try again.");
@@ -108,7 +140,7 @@ public class MainApplication {
             System.out.print("Enter new password: ");
             String newPassword = scanner.next();
 
-            if (userDAO.changePassword(loggedInUser.getEmail(), newPassword)) {
+            if (userDAO.changePassword(loggedInUserEmail, newPassword)) {
                 System.out.println("Password changed successfully!");
             } else {
                 System.out.println("Failed to change password. Please try again.");
@@ -132,9 +164,61 @@ public class MainApplication {
             e.printStackTrace();
         }
     }
-
-    private static void viewPlans() {
-        // Implement logic to view plans (if needed)
-        System.out.println("Viewing plans...");
+    private static void updateName(UserDAOImpl userDAO, Scanner scanner) {
+        try {
+            System.out.print("Enter new name: ");
+            String newName = scanner.next();
+            userDAO.updateName(loggedInUserEmail, newName);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
+
+    private static void updatePhoneNumber(UserDAOImpl userDAO, Scanner scanner) {
+        try {
+            System.out.print("Enter new phone number: ");
+            String newPhoneNumber = scanner.next();
+            userDAO.updatePhoneNumber(loggedInUserEmail, newPhoneNumber);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static void updateAddress(UserDAOImpl userDAO, Scanner scanner) {
+        try {
+            System.out.print("Enter new address: ");
+            String newAddress = scanner.next();
+            userDAO.updateAddress(loggedInUserEmail, newAddress);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+    private static void viewPlans(UserDAOImpl userDAO) {
+        try {
+            List<Plan> plans = userDAO.getPlans();
+
+            if (plans.isEmpty()) {
+                System.out.println("No plans available.");
+            } else {
+                System.out.println("Available Plans:");
+                for (Plan plan : plans) {
+                    System.out.println("Plan ID: " + plan.getPlanId());
+                    System.out.println("Service ID: " + plan.getServiceId());
+                    System.out.println("Plan Name: " + plan.getPlanName());
+                    System.out.println("Price: " + plan.getPrice());
+                    System.out.println();
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+//    private static void viewPlans() {
+//        // Implement logic to view plans (if needed)
+//        System.out.println("Viewing plans...");
+//    }
+
+
 }
+

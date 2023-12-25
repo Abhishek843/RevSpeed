@@ -1,8 +1,9 @@
 package com.revature.DAOImpl;
 import java.security.SecureRandom;
-
+import java.util.*;
 import com.revature.DAO.UserDAO;
 import com.revature.Model.User;
+import com.revature.Model.Plan;
 import org.mindrot.jbcrypt.BCrypt;
 
 import java.sql.*;
@@ -27,6 +28,56 @@ public class UserDAOImpl implements UserDAO {
             );
         } catch (ClassNotFoundException | SQLException e) {
             throw new RuntimeException("Error initializing database connection.", e);
+        }
+    }
+    @Override
+    public void updateName(String email, String newName) throws SQLException {
+        String sql = "UPDATE users SET name = ? WHERE email_id = ?";
+
+        try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+            preparedStatement.setString(1, newName);
+            preparedStatement.setString(2, email);
+
+            int rowsAffected = preparedStatement.executeUpdate();
+            if (rowsAffected > 0) {
+                System.out.println("Name updated successfully in the database.");
+            } else {
+                System.out.println("Failed to update name in the database.");
+            }
+        }
+    }
+
+    @Override
+    public void updatePhoneNumber(String email, String newPhoneNumber) throws SQLException {
+        String sql = "UPDATE users SET phone_number = ? WHERE email_id = ?";
+
+        try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+            preparedStatement.setString(1, newPhoneNumber);
+            preparedStatement.setString(2, email);
+
+            int rowsAffected = preparedStatement.executeUpdate();
+            if (rowsAffected > 0) {
+                System.out.println("Phone number updated successfully in the database.");
+            } else {
+                System.out.println("Failed to update phone number in the database.");
+            }
+        }
+    }
+
+    @Override
+    public void updateAddress(String email, String newAddress) throws SQLException {
+        String sql = "UPDATE users SET address = ? WHERE email_id = ?";
+
+        try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+            preparedStatement.setString(1, newAddress);
+            preparedStatement.setString(2, email);
+
+            int rowsAffected = preparedStatement.executeUpdate();
+            if (rowsAffected > 0) {
+                System.out.println("Address updated successfully in the database.");
+            } else {
+                System.out.println("Failed to update address in the database.");
+            }
         }
     }
 
@@ -105,5 +156,26 @@ public class UserDAOImpl implements UserDAO {
 
 
         return password.toString();
+    }
+
+    @Override
+    public List<Plan> getPlans() throws SQLException {
+        List<Plan> plans = new ArrayList<>();
+        String sql = "SELECT * FROM plans";
+
+        try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                while (resultSet.next()) {
+                    Plan plan = new Plan();
+                    plan.setPlanId(resultSet.getInt("plan_id"));
+                    plan.setServiceId(resultSet.getInt("service_id"));
+                    plan.setPlanName(resultSet.getString("plan_name"));
+                    plan.setPrice(resultSet.getDouble("price"));
+                    plans.add(plan);
+                }
+            }
+        }
+
+        return plans;
     }
 }
