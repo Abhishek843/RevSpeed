@@ -18,8 +18,8 @@ public interface UserDAO {
     void updateName(String email, String newName) throws SQLException;
     void updatePhoneNumber(String email, String newPhoneNumber) throws SQLException;
     void updateAddress(String email, String newAddress) throws SQLException;
-    List<Plan> getPlans() throws SQLException;
-    List<UserBroadbandSubscription> getUserBroadbandSubscription() throws SQLException;
+    List<Plan> getPlans(String plan_type) throws SQLException;
+    List<UserBroadbandSubscription> getUserBroadbandSubscription(int userId) throws SQLException;
 
     Plan getPlanById(int planId) throws SQLException;
 

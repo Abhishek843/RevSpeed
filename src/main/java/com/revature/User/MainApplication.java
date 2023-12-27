@@ -37,6 +37,7 @@ public class MainApplication {
                     switch (choice) {
                         case 1:
                             registerUser(userDAO, scanner);
+
                             break;
                         case 2:
                             loginUser(userDAO, scanner);
@@ -72,6 +73,7 @@ public class MainApplication {
                     System.out.println("9. Update Address");
                     System.out.println("10. Logout");
                     System.out.println("11. viewUserBroadbandSubscriptions");
+                    System.out.println("12. DeleteSubscribedPlan");
 
                     System.out.print("Enter your choice: ");
 
@@ -79,8 +81,12 @@ public class MainApplication {
 
                     switch (profileChoice) {
                         case 5:
-                            viewPlans(userDAO);
+                            viewPlans(userDAO,scanner);
+                            System.out.println("Write dth to see dth plans");
+                            System.out.println("Write broadband to see broadband  plans");
+                            System.out.println("Write internet to see internet plans");
                             subscribeToPlan(userDAO, scanner);
+
                             break;
                         case 7:
                             updateName(userDAO, scanner);
@@ -126,6 +132,7 @@ public class MainApplication {
                 // Assuming you have a method to get the user ID using the logged-in user's email
                 int userId = userDAO.getUserIdByEmail(loggedInUserEmail);
 
+
                 java.util.Date currentDate = new java.util.Date();
                 Date startDate = new Date(currentDate.getTime());
 
@@ -136,7 +143,7 @@ public class MainApplication {
                 Date endDate = new Date(calendar.getTimeInMillis());
 
                 // Create a new broadband subscription
-                userDAO.subscribeToPlan(userId, serviceId, startDate, endDate);
+                userDAO.subscribeToPlan(userId, selectedPlanId, startDate, endDate);
 
                 System.out.println("Subscription successful!");
             } else {
@@ -289,13 +296,16 @@ public class MainApplication {
             e.printStackTrace();
         }
     }
-    private static void viewPlans(UserDAOImpl userDAO) {
+    private static void viewPlans(UserDAOImpl userDAO,Scanner scanner) {
         try {
-            List<Plan> plans = userDAO.getPlans();
+            System.out.print("Enter new address: ");
+            String plan_type = scanner.next();
+            List<Plan> plans = userDAO.getPlans(plan_type);
 
             if (plans.isEmpty()) {
                 System.out.println("No plans available.");
             } else {
+
                 System.out.println("Available Plans:");
                 System.out.println(plans);
 
@@ -316,7 +326,8 @@ public class MainApplication {
 
     private static void viewUserBroadbandSubscriptions(UserDAOImpl userDAO) {
         try {
-            List<UserBroadbandSubscription> subscriptions = userDAO.getUserBroadbandSubscription();
+            int userId = userDAO.getUserIdByEmail(loggedInUserEmail);
+            List<UserBroadbandSubscription> subscriptions = userDAO.getUserBroadbandSubscription(userId);
 
             if (subscriptions.isEmpty()) {
                 System.out.println("No broadband subscriptions available.");

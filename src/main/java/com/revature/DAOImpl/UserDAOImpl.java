@@ -162,11 +162,12 @@ public class UserDAOImpl implements UserDAO {
     }
 
     @Override
-    public List<Plan> getPlans() throws SQLException {
+    public List<Plan> getPlans(String plan_type) throws SQLException {
         List<Plan> plans = new ArrayList<>();
-        String sql = "SELECT * FROM plans";
+        String sql = "SELECT * FROM plans where plan_type= ?";
 
         try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+            preparedStatement.setString(1,plan_type);
             try (ResultSet resultSet = preparedStatement.executeQuery()) {
                 while (resultSet.next()) {
                     Plan plan = new Plan();
@@ -182,16 +183,19 @@ public class UserDAOImpl implements UserDAO {
         return plans;
     }
     @Override
-    public List<UserBroadbandSubscription> getUserBroadbandSubscription() throws SQLException {
+    public List<UserBroadbandSubscription> getUserBroadbandSubscription(int userId) throws SQLException {
         List<UserBroadbandSubscription> subscriptions = new ArrayList<>();
-        String sql = "SELECT * FROM user_broadband_subscriptions";
+        String sql = "SELECT * FROM user_broadband_subscriptions WHERE user_id = ?";
 
         try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+            preparedStatement.setInt(1, userId);
+
             try (ResultSet resultSet = preparedStatement.executeQuery()) {
                 while (resultSet.next()) {
                     UserBroadbandSubscription subscription = new UserBroadbandSubscription();
                     subscription.setUserBroadbandSubscriptionId(resultSet.getInt("user_broadband_subscription_id"));
                     subscription.setUserId(resultSet.getInt("user_id"));
+                    subscription.setServiceId(resultSet.getInt("service_id"));
                     subscription.setServiceId(resultSet.getInt("service_id"));
                     subscription.setSubscriptionStartDate(resultSet.getDate("subscription_start_date"));
                     subscription.setSubscriptionEndDate(resultSet.getDate("subscription_end_date"));
@@ -202,6 +206,7 @@ public class UserDAOImpl implements UserDAO {
 
         return subscriptions;
     }
+
     @Override
     public boolean updatePassword(String newPassword,String email) throws SQLException {
         String sql = "UPDATE users SET password = ? WHERE email_id = ? ";
@@ -232,18 +237,28 @@ public class UserDAOImpl implements UserDAO {
     }
     @Override
     public boolean subscribeToPlan(int userId, int planId, java.sql.Date subscriptionStartDate, java.sql.Date subscriptionEndDate) throws SQLException {
-        String sql = "INSERT INTO user_broadband_subscriptions (user_id, service_id, subscription_start_date, subscription_end_date) VALUES (?, ?, ?, ?)";
+        Plan plan = getPlanById(planId);
+        String sql = "INSERT INTO user_broadband_subscriptions (user_id,  service_id,subscription_start_date, subscription_end_date,plan_name, price, days, plan_type, plan_info) VALUES (?, ?, ?, ?, ?, ?, ?, ?,?)";
 
         try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
             preparedStatement.setInt(1, userId);
+
             preparedStatement.setInt(2, getServiceIdForPlan(planId));
+
+
             preparedStatement.setDate(3, subscriptionStartDate);
             preparedStatement.setDate(4, subscriptionEndDate);
+            preparedStatement.setString(5, plan.getPlanName());
+            preparedStatement.setDouble(6, plan.getPrice());
+            preparedStatement.setInt(7, plan.getDays());
+            preparedStatement.setString(8, plan.getPlanType());  // Assuming there is a getPlanType() method in your Plan class
+            preparedStatement.setString(9, plan.getPlanInfo());
 
             int rowsAffected = preparedStatement.executeUpdate();
             return rowsAffected > 0;
         }
     }
+
 
 //    @Override
 //    public List<UserBroadbandSubscription> getAllSubscriptions() throws SQLException {
