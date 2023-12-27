@@ -4,7 +4,10 @@ import java.util.*;
 import com.revature.DAO.UserDAO;
 import com.revature.Model.User;
 import com.revature.Model.Plan;
+import com.revature.Model.UserBroadbandSubscription;
 import org.mindrot.jbcrypt.BCrypt;
+import java.util.List;
+import java.util.ArrayList;
 
 import java.sql.*;
 
@@ -178,4 +181,149 @@ public class UserDAOImpl implements UserDAO {
 
         return plans;
     }
+    @Override
+    public List<UserBroadbandSubscription> getUserBroadbandSubscription() throws SQLException {
+        List<UserBroadbandSubscription> subscriptions = new ArrayList<>();
+        String sql = "SELECT * FROM user_broadband_subscriptions";
+
+        try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                while (resultSet.next()) {
+                    UserBroadbandSubscription subscription = new UserBroadbandSubscription();
+                    subscription.setUserBroadbandSubscriptionId(resultSet.getInt("user_broadband_subscription_id"));
+                    subscription.setUserId(resultSet.getInt("user_id"));
+                    subscription.setServiceId(resultSet.getInt("service_id"));
+                    subscription.setSubscriptionStartDate(resultSet.getDate("subscription_start_date"));
+                    subscription.setSubscriptionEndDate(resultSet.getDate("subscription_end_date"));
+                    subscriptions.add(subscription);
+                }
+            }
+        }
+
+        return subscriptions;
+    }
+    @Override
+    public boolean updatePassword(String newPassword,String email) throws SQLException {
+        String sql = "UPDATE users SET password = ? WHERE email_id = ? ";
+
+        try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+
+
+            String hashedNewPassword = BCrypt.hashpw(newPassword, BCrypt.gensalt());
+
+            preparedStatement.setString(1, hashedNewPassword);
+            preparedStatement.setString(2, email);
+
+
+            int rowsAffected = preparedStatement.executeUpdate();
+            return rowsAffected > 0;
+        }
+    }
+    @Override
+    public boolean unsubscribeFromPlan(int subscriptionId) throws SQLException {
+        String sql = "DELETE FROM user_broadband_subscriptions WHERE user_broadband_subscription_id = ?";
+
+        try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+            preparedStatement.setInt(1, subscriptionId);
+
+            int rowsAffected = preparedStatement.executeUpdate();
+            return rowsAffected > 0;
+        }
+    }
+    @Override
+    public boolean subscribeToPlan(int userId, int planId, java.sql.Date subscriptionStartDate, java.sql.Date subscriptionEndDate) throws SQLException {
+        String sql = "INSERT INTO user_broadband_subscriptions (user_id, service_id, subscription_start_date, subscription_end_date) VALUES (?, ?, ?, ?)";
+
+        try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+            preparedStatement.setInt(1, userId);
+            preparedStatement.setInt(2, getServiceIdForPlan(planId));
+            preparedStatement.setDate(3, subscriptionStartDate);
+            preparedStatement.setDate(4, subscriptionEndDate);
+
+            int rowsAffected = preparedStatement.executeUpdate();
+            return rowsAffected > 0;
+        }
+    }
+
+//    @Override
+//    public List<UserBroadbandSubscription> getAllSubscriptions() throws SQLException {
+//        List<UserBroadbandSubscription> subscriptions = new List
+//                <UserBroadbandSubscription>();
+//        String sql = "SELECT * FROM user_broadband_subscriptions";
+//
+//        try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+//            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+//                while (resultSet.next()) {
+//                    UserBroadbandSubscription subscription = new UserBroadbandSubscription();
+//                    subscription.setUserBroadbandSubscriptionId(resultSet.getInt("user_broadband_subscription_id"));
+//                    subscription.setUserId(resultSet.getInt("user_id"));
+//                    subscription.setServiceId(resultSet.getInt("service_id"));
+//                    subscription.setSubscriptionStartDate(resultSet.getDate("subscription_start_date"));
+//                    subscription.setSubscriptionEndDate(resultSet.getDate("subscription_end_date"));
+//                    subscriptions.add(subscription);
+//                }
+//            }
+//        }
+//
+//        return subscriptions;
+//    }
+
+    @Override
+    public Plan getPlanById(int planId) throws SQLException {
+        String sql = "SELECT * FROM plans WHERE plan_id = ?";
+
+        try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+            preparedStatement.setInt(1, planId);
+
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                if (resultSet.next()) {
+                    Plan plan = new Plan();
+                    plan.setPlanId(resultSet.getInt("plan_id"));
+                    plan.setServiceId(resultSet.getInt("service_id"));
+                    plan.setPlanName(resultSet.getString("plan_name"));
+                    plan.setPrice(resultSet.getDouble("price"));
+                    plan.setDays(resultSet.getInt("days"));
+
+                    return plan;
+                } else {
+                    return null; // Plan not found
+                }
+            }
+        }
+    }
+
+    @Override
+    public int getServiceIdForPlan(int planId) throws SQLException {
+        String sql = "SELECT service_id FROM plans WHERE plan_id = ?";
+
+        try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+            preparedStatement.setInt(1, planId);
+
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                if (resultSet.next()) {
+                    return resultSet.getInt("service_id");
+                } else {
+                    return -1; // Invalid service ID
+                }
+            }
+        }
+    }
+
+    @Override
+    public int getUserIdByEmail(String email) throws SQLException {
+        String sql = "SELECT user_id FROM users WHERE email_id = ?";
+
+        try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+            preparedStatement.setString(1, email);
+
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                if (resultSet.next()) {
+                    return resultSet.getInt("user_id");
+                } else {
+                    return -1; // Invalid user ID
+                }
+            }
+        }
+    }
+
 }

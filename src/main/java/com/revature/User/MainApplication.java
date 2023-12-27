@@ -1,9 +1,13 @@
 package com.revature.User;
 
 import com.revature.DAOImpl.UserDAOImpl;
-import com.revature.Model.User;
 import com.revature.Model.Plan;
+import com.revature.Model.User;
+import com.revature.Model.UserBroadbandSubscription;
+
+import java.sql.Date;
 import java.sql.SQLException;
+import java.util.Calendar;
 import java.util.List;
 import java.util.Scanner;
 
@@ -13,6 +17,7 @@ public class MainApplication {
 
     public static void main(String[] args) {
         try {
+//            0gCWLU3McgHN
             UserDAOImpl userDAO = new UserDAOImpl();
             Scanner scanner = new Scanner(System.in);
 
@@ -23,6 +28,7 @@ public class MainApplication {
                     System.out.println("2. Login");
                     System.out.println("3. Change Password (if logged in)");
                     System.out.println("4. Request Forgotten Password");
+                    System.out.println("44. Update Password");
                     System.out.println("6. Exit");
                     System.out.print("Enter your choice: ");
 
@@ -46,6 +52,10 @@ public class MainApplication {
                         case 4:
                             requestForgottenPassword(userDAO, scanner);
                             break;
+                        case 44: // New case for changing the password
+                            updatePassword(userDAO, scanner);
+                            break;
+
                         case 6:
                             System.out.println("Exiting...");
                             scanner.close();
@@ -61,6 +71,8 @@ public class MainApplication {
                     System.out.println("8. Update Phone Number");
                     System.out.println("9. Update Address");
                     System.out.println("10. Logout");
+                    System.out.println("11. viewUserBroadbandSubscriptions");
+
                     System.out.print("Enter your choice: ");
 
                     int profileChoice = scanner.nextInt();
@@ -68,6 +80,7 @@ public class MainApplication {
                     switch (profileChoice) {
                         case 5:
                             viewPlans(userDAO);
+                            subscribeToPlan(userDAO, scanner);
                             break;
                         case 7:
                             updateName(userDAO, scanner);
@@ -83,6 +96,13 @@ public class MainApplication {
                             loggedIn = false;
                             System.out.println("Logged out successfully.");
                             break;
+                        case 11:
+                            viewUserBroadbandSubscriptions(userDAO);
+                            break;
+                        case 12: // New case for deleting a plan
+                            deleteSubscribedPlan(userDAO, scanner);
+                            break;
+
                         default:
                             System.out.println("Invalid choice. Please enter a number between 5 and 10.");
                             break;
@@ -93,6 +113,62 @@ public class MainApplication {
             e.printStackTrace();
         }
     }
+    private static void subscribeToPlan(UserDAOImpl userDAO, Scanner scanner) {
+        try {
+            System.out.println("Select a plan to subscribe (enter Plan ID): ");
+            int selectedPlanId = scanner.nextInt();
+            Plan selectedPlan = userDAO.getPlanById(selectedPlanId);
+
+            if (selectedPlan != null) {
+                // Assuming you have a method to get the service ID associated with the plan
+                int serviceId = userDAO.getServiceIdForPlan(selectedPlanId);
+
+                // Assuming you have a method to get the user ID using the logged-in user's email
+                int userId = userDAO.getUserIdByEmail(loggedInUserEmail);
+
+                java.util.Date currentDate = new java.util.Date();
+                Date startDate = new Date(currentDate.getTime());
+
+                // Set the end date to 1 month after the current date
+                Calendar calendar = Calendar.getInstance();
+                calendar.setTime(currentDate);
+                calendar.add(Calendar.MONTH, 1);
+                Date endDate = new Date(calendar.getTimeInMillis());
+
+                // Create a new broadband subscription
+                userDAO.subscribeToPlan(userId, serviceId, startDate, endDate);
+
+                System.out.println("Subscription successful!");
+            } else {
+                System.out.println("Invalid Plan ID. Please try again.");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static void updatePassword(UserDAOImpl userDAO, Scanner scanner) {
+        try {
+            System.out.print("Enter email: ");
+            String loggedInUserEmail = scanner.next();
+            System.out.print("Enter current password: ");
+            String currentPassword = scanner.next();
+            System.out.print("Enter new password: ");
+            String newPassword = scanner.next();
+
+            if (userDAO.updatePassword(newPassword,loggedInUserEmail)) {
+                System.out.println("Password changed successfully!");
+            } else {
+                System.out.println(loggedInUserEmail);
+                System.out.println(currentPassword);
+                System.out.println(newPassword);
+                System.out.println("Failed to change password. Please check your current password and try again.");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
 
 
     private static void registerUser(UserDAOImpl userDAO, Scanner scanner) {
@@ -109,6 +185,23 @@ public class MainApplication {
             String password = scanner.next();
 
             userDAO.createUser(new User(name, phone_number, address, email_id, password));
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static void deleteSubscribedPlan(UserDAOImpl userDAO, Scanner scanner) {
+        try {
+            viewUserBroadbandSubscriptions(userDAO); // Display existing subscriptions before deletion
+
+            System.out.print("Enter Subscription ID to delete: ");
+            int subscriptionId = scanner.nextInt();
+
+            if (userDAO.unsubscribeFromPlan(subscriptionId)) {
+                System.out.println("Subscription deleted successfully!");
+            } else {
+                System.out.println("Failed to delete subscription. Please try again.");
+            }
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -135,6 +228,8 @@ public class MainApplication {
 
     private static void changePassword(UserDAOImpl userDAO, Scanner scanner) {
         try {
+            System.out.print("Enter email: ");
+            String loggedInUserEmail = scanner.next();
             System.out.print("Enter current password: ");
             String currentPassword = scanner.next();
             System.out.print("Enter new password: ");
@@ -166,6 +261,7 @@ public class MainApplication {
     }
     private static void updateName(UserDAOImpl userDAO, Scanner scanner) {
         try {
+
             System.out.print("Enter new name: ");
             String newName = scanner.next();
             userDAO.updateName(loggedInUserEmail, newName);
@@ -201,11 +297,15 @@ public class MainApplication {
                 System.out.println("No plans available.");
             } else {
                 System.out.println("Available Plans:");
+                System.out.println(plans);
+
                 for (Plan plan : plans) {
                     System.out.println("Plan ID: " + plan.getPlanId());
                     System.out.println("Service ID: " + plan.getServiceId());
                     System.out.println("Plan Name: " + plan.getPlanName());
                     System.out.println("Price: " + plan.getPrice());
+                    System.out.println("Days: " + plan.getDays());
+
                     System.out.println();
                 }
             }
@@ -213,6 +313,32 @@ public class MainApplication {
             e.printStackTrace();
         }
     }
+
+    private static void viewUserBroadbandSubscriptions(UserDAOImpl userDAO) {
+        try {
+            List<UserBroadbandSubscription> subscriptions = userDAO.getUserBroadbandSubscription();
+
+            if (subscriptions.isEmpty()) {
+                System.out.println("No broadband subscriptions available.");
+            } else {
+                System.out.println("User Broadband Subscriptions:");
+                for (UserBroadbandSubscription subscription : subscriptions) {
+                    System.out.println("Subscription ID: " + subscription.getUserBroadbandSubscriptionId());
+                    System.out.println("User ID: " + subscription.getUserId());
+                    System.out.println("Service ID: " + subscription.getServiceId());
+                    System.out.println("Start Date: " + subscription.getSubscriptionStartDate());
+                    System.out.println("End Date: " + subscription.getSubscriptionEndDate());
+
+                    System.out.println();
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+
+
 
 //    private static void viewPlans() {
 //        // Implement logic to view plans (if needed)

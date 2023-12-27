@@ -7,23 +7,37 @@ public class Plan {
     private String planName;
     private double price;
 
+    public int getDays() {
+        return days;
+    }
+
+    public void setDays(int days) {
+        this.days = days;
+    }
+
+    private int days;
+
     // Default constructor
     public Plan() {
     }
 
     // Parameterized constructor
-    public Plan(int planId, int serviceId, String planName, double price) {
+    public Plan(int planId, int serviceId, String planName, double price,int days) {
         this.planId = planId;
         this.serviceId = serviceId;
         this.planName = planName;
         this.price = price;
+        this.days=days;
     }
+
+
 
     // Getter and Setter methods
 
     public int getPlanId() {
         return planId;
     }
+
 
     public void setPlanId(int planId) {
         this.planId = planId;
