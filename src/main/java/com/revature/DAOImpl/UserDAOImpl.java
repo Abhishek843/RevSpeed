@@ -1,15 +1,15 @@
 package com.revature.DAOImpl;
-import java.security.SecureRandom;
-import java.util.*;
+
 import com.revature.DAO.UserDAO;
-import com.revature.Model.User;
 import com.revature.Model.Plan;
+import com.revature.Model.User;
 import com.revature.Model.UserBroadbandSubscription;
 import org.mindrot.jbcrypt.BCrypt;
-import java.util.List;
-import java.util.ArrayList;
 
+import java.security.SecureRandom;
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class UserDAOImpl implements UserDAO {
     private static final String JDBC_DRIVER = "com.mysql.cj.jdbc.Driver";

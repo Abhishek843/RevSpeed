@@ -4,6 +4,10 @@ import com.revature.DAOImpl.UserDAOImpl;
 import com.revature.Model.Plan;
 import com.revature.Model.User;
 import com.revature.Model.UserBroadbandSubscription;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+
 
 import java.sql.Date;
 import java.sql.SQLException;
@@ -12,6 +16,7 @@ import java.util.List;
 import java.util.Scanner;
 
 public class MainApplication {
+    private static final Logger logger = LoggerFactory.getLogger(MainApplication.class);
     private static String loggedInUserEmail;
     private static boolean loggedIn = false;
 
@@ -37,10 +42,11 @@ public class MainApplication {
                     switch (choice) {
                         case 1:
                             registerUser(userDAO, scanner);
-
+                            logger.info("User registered successfully.");
                             break;
                         case 2:
                             loginUser(userDAO, scanner);
+                            logger.info("User logged in successfully.");
                             loggedIn = true;
                             break;
                         case 3:
@@ -63,6 +69,7 @@ public class MainApplication {
                             System.exit(0);
                             break;
                         default:
+                            logger.warn("Invalid choice entered: {}", choice);
                             System.out.println("Invalid choice. Please enter a number between 1 and 6.");
                     }
                 } else {
@@ -87,7 +94,7 @@ public class MainApplication {
                             viewPlans(userDAO,scanner);
 
                             subscribeToPlan(userDAO, scanner);
-
+                            logger.info("User subscribed to a plan successfully.");
                             break;
                         case 7:
                             updateName(userDAO, scanner);
@@ -111,13 +118,13 @@ public class MainApplication {
                             break;
 
                         default:
-                            System.out.println("Invalid choice. Please enter a number between 5 and 10.");
+                            logger.warn("Invalid profile choice entered: {}", profileChoice);
                             break;
                     }
                 }
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("An error occurred in the application.", e);
         }
     }
 //    private static void subscribeToPlan(UserDAOImpl userDAO, Scanner scanner) {
@@ -181,11 +188,13 @@ public class MainApplication {
                 userDAO.subscribeToPlan(userId, selectedPlanId, startDate, endDate);
 
                 System.out.println("Subscription successful!");
+                logger.info("User subscribed to plan {} successfully.", selectedPlanId);
             } else {
                 System.out.println("Invalid Plan ID. Please try again.");
+                logger.warn("Invalid Plan ID entered for subscription.");
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            logger.error("Error subscribing to plan.", e);
         }
     }
 
@@ -208,7 +217,7 @@ public class MainApplication {
                 System.out.println("Failed to change password. Please check your current password and try again.");
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            logger.error("Error in password.", e);
         }
     }
 
@@ -229,7 +238,7 @@ public class MainApplication {
 
             userDAO.createUser(new User(name, phone_number, address, email_id, password));
         } catch (SQLException e) {
-            e.printStackTrace();
+            logger.error("Error in register.", e);
         }
     }
 
@@ -246,7 +255,7 @@ public class MainApplication {
                 System.out.println("Failed to delete subscription. Please try again.");
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            logger.error("Error in deleting.", e);
         }
     }
 
@@ -265,7 +274,7 @@ public class MainApplication {
                 System.out.println("Invalid email or password. Please try again.");
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            logger.error("Error while login.", e);
         }
     }
 
@@ -284,7 +293,7 @@ public class MainApplication {
                 System.out.println("Failed to change password. Please try again.");
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            logger.error("Error updating password.", e);
         }
     }
 
@@ -299,7 +308,7 @@ public class MainApplication {
                 System.out.println("Failed to request a new password. Please try again.");
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            logger.error("Error updating password.", e);
         }
     }
     private static void updateName(UserDAOImpl userDAO, Scanner scanner) {
@@ -309,7 +318,7 @@ public class MainApplication {
             String newName = scanner.next();
             userDAO.updateName(loggedInUserEmail, newName);
         } catch (SQLException e) {
-            e.printStackTrace();
+            logger.error("Error updating name.", e);
         }
     }
 
@@ -319,7 +328,7 @@ public class MainApplication {
             String newPhoneNumber = scanner.next();
             userDAO.updatePhoneNumber(loggedInUserEmail, newPhoneNumber);
         } catch (SQLException e) {
-            e.printStackTrace();
+            logger.error("Error updating phone number.", e);
         }
     }
 

@@ -1,0 +1,27 @@
+10:01:40.285 [main] ERROR com.revature.User.MainApplication - An error occurred in the application.
+java.lang.RuntimeException: Error initializing database connection.
+	at com.revature.DAOImpl.UserDAOImpl.<init>(UserDAOImpl.java:33)
+	at com.revature.User.MainApplication.main(MainApplication.java:26)
+Caused by: java.lang.ClassNotFoundException: com.mysql.cj.jdbc.Driver
+	at java.base/jdk.internal.loader.BuiltinClassLoader.loadClass(BuiltinClassLoader.java:641)
+	at java.base/jdk.internal.loader.ClassLoaders$AppClassLoader.loadClass(ClassLoaders.java:188)
+	at java.base/java.lang.ClassLoader.loadClass(ClassLoader.java:526)
+	at java.base/java.lang.Class.forName0(Native Method)
+	at java.base/java.lang.Class.forName(Class.java:421)
+	at java.base/java.lang.Class.forName(Class.java:412)
+	at com.revature.DAOImpl.UserDAOImpl.<init>(UserDAOImpl.java:26)
+	... 1 common frames omitted
+10:02:50.655 [main] ERROR com.revature.User.MainApplication - An error occurred in the application.
+java.lang.RuntimeException: Error initializing database connection.
+	at com.revature.DAOImpl.UserDAOImpl.<init>(UserDAOImpl.java:33)
+	at com.revature.User.MainApplication.main(MainApplication.java:26)
+Caused by: java.lang.ClassNotFoundException: com.mysql.cj.jdbc.Driver
+	at java.base/jdk.internal.loader.BuiltinClassLoader.loadClass(BuiltinClassLoader.java:641)
+	at java.base/jdk.internal.loader.ClassLoaders$AppClassLoader.loadClass(ClassLoaders.java:188)
+	at java.base/java.lang.ClassLoader.loadClass(ClassLoader.java:526)
+	at java.base/java.lang.Class.forName0(Native Method)
+	at java.base/java.lang.Class.forName(Class.java:421)
+	at java.base/java.lang.Class.forName(Class.java:412)
+	at com.revature.DAOImpl.UserDAOImpl.<init>(UserDAOImpl.java:26)
+	... 1 common frames omitted
+10:47:28.479 [main] INFO  com.revature.User.MainApplication - User logged in successfully.
