@@ -81,10 +81,11 @@ public class MainApplication {
 
                     switch (profileChoice) {
                         case 5:
-                            viewPlans(userDAO,scanner);
                             System.out.println("Write dth to see dth plans");
                             System.out.println("Write broadband to see broadband  plans");
                             System.out.println("Write internet to see internet plans");
+                            viewPlans(userDAO,scanner);
+
                             subscribeToPlan(userDAO, scanner);
 
                             break;
@@ -119,6 +120,41 @@ public class MainApplication {
             e.printStackTrace();
         }
     }
+//    private static void subscribeToPlan(UserDAOImpl userDAO, Scanner scanner) {
+//        try {
+//            System.out.println("Select a plan to subscribe (enter Plan ID): ");
+//            int selectedPlanId = scanner.nextInt();
+//            Plan selectedPlan = userDAO.getPlanById(selectedPlanId);
+//
+//            if (selectedPlan != null) {
+//                // Assuming you have a method to get the service ID associated with the plan
+//                int serviceId = userDAO.getServiceIdForPlan(selectedPlanId);
+//
+//                // Assuming you have a method to get the user ID using the logged-in user's email
+//                int userId = userDAO.getUserIdByEmail(loggedInUserEmail);
+//
+//
+//                java.util.Date currentDate = new java.util.Date();
+//                Date startDate = new Date(currentDate.getTime());
+//
+//                // Set the end date to 1 month after the current date
+//                Calendar calendar = Calendar.getInstance();
+//                calendar.setTime(currentDate);
+//                calendar.add(Calendar.MONTH, 1);
+//                Date endDate = new Date(calendar.getTimeInMillis());
+//
+//                // Create a new broadband subscription
+//                userDAO.subscribeToPlan(userId, selectedPlanId, startDate, endDate);
+//
+//                System.out.println("Subscription successful!");
+//            } else {
+//                System.out.println("Invalid Plan ID. Please try again.");
+//            }
+//        } catch (SQLException e) {
+//            e.printStackTrace();
+//        }
+//    }
+
     private static void subscribeToPlan(UserDAOImpl userDAO, Scanner scanner) {
         try {
             System.out.println("Select a plan to subscribe (enter Plan ID): ");
@@ -132,14 +168,13 @@ public class MainApplication {
                 // Assuming you have a method to get the user ID using the logged-in user's email
                 int userId = userDAO.getUserIdByEmail(loggedInUserEmail);
 
-
                 java.util.Date currentDate = new java.util.Date();
                 Date startDate = new Date(currentDate.getTime());
 
-                // Set the end date to 1 month after the current date
+                // Calculate endDate based on the number of days in the selected plan
                 Calendar calendar = Calendar.getInstance();
                 calendar.setTime(currentDate);
-                calendar.add(Calendar.MONTH, 1);
+                calendar.add(Calendar.DAY_OF_MONTH, selectedPlan.getDays());
                 Date endDate = new Date(calendar.getTimeInMillis());
 
                 // Create a new broadband subscription
@@ -153,6 +188,7 @@ public class MainApplication {
             e.printStackTrace();
         }
     }
+
 
     private static void updatePassword(UserDAOImpl userDAO, Scanner scanner) {
         try {
@@ -298,7 +334,7 @@ public class MainApplication {
     }
     private static void viewPlans(UserDAOImpl userDAO,Scanner scanner) {
         try {
-            System.out.print("Enter new address: ");
+            System.out.print("Please Select plan type: ");
             String plan_type = scanner.next();
             List<Plan> plans = userDAO.getPlans(plan_type);
 
@@ -315,6 +351,10 @@ public class MainApplication {
                     System.out.println("Plan Name: " + plan.getPlanName());
                     System.out.println("Price: " + plan.getPrice());
                     System.out.println("Days: " + plan.getDays());
+                    System.out.println("PlanType: " + plan.getPlanType());
+                    System.out.println("PlanInfo: " + plan.getPlanInfo());
+                    System.out.println("OttBenefits: " + plan.getOttBenefits());
+
 
                     System.out.println();
                 }

@@ -175,6 +175,11 @@ public class UserDAOImpl implements UserDAO {
                     plan.setServiceId(resultSet.getInt("service_id"));
                     plan.setPlanName(resultSet.getString("plan_name"));
                     plan.setPrice(resultSet.getDouble("price"));
+                    plan.setDays(resultSet.getInt("days"));
+                    plan.setPlanType(resultSet.getString("plan_type"));
+                    plan.setPlanInfo(resultSet.getString("plan_info"));
+                    plan.setOttBenefits(resultSet.getString("ott_benefits"));
+
                     plans.add(plan);
                 }
             }
@@ -196,9 +201,10 @@ public class UserDAOImpl implements UserDAO {
                     subscription.setUserBroadbandSubscriptionId(resultSet.getInt("user_broadband_subscription_id"));
                     subscription.setUserId(resultSet.getInt("user_id"));
                     subscription.setServiceId(resultSet.getInt("service_id"));
-                    subscription.setServiceId(resultSet.getInt("service_id"));
+
                     subscription.setSubscriptionStartDate(resultSet.getDate("subscription_start_date"));
                     subscription.setSubscriptionEndDate(resultSet.getDate("subscription_end_date"));
+
                     subscriptions.add(subscription);
                 }
             }

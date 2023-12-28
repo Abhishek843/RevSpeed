@@ -7,25 +7,25 @@ public class Plan {
     private String planName;
     private double price;
 
-    public String getPlan_type() {
-        return plan_type;
+
+    public void setOttBenefits(String ottBenefits) {
+        this.ottBenefits = ottBenefits;
     }
 
-    public void setPlan_type(String plan_type) {
-        this.plan_type = plan_type;
+    private String ottBenefits;
+
+
+
+
+    private String planType;
+
+    public String getOttBenefits() {
+        return ottBenefits;
     }
 
-    private String plan_type;
 
-    public String getOtt_benefits() {
-        return ott_benefits;
-    }
 
-    public void setOtt_benefits(String ott_benefits) {
-        this.ott_benefits = ott_benefits;
-    }
 
-    private String ott_benefits;
 
     public String getPlanType() {
         return planType;
@@ -35,7 +35,7 @@ public class Plan {
         this.planType = planType;
     }
 
-    private String planType;
+
 
     public String getPlanInfo() {
         return planInfo;
@@ -61,16 +61,15 @@ public class Plan {
     }
 
     // Parameterized constructor
-    public Plan(int planId, int serviceId, String planName, double price,int days,String ott_benefits,String planInfo ,String plan_type) {
+    public Plan(int planId, int serviceId, String planName, double price,int days,String planInfo ,String planType,String ottBenefits) {
         this.planId = planId;
         this.serviceId = serviceId;
         this.planName = planName;
         this.price = price;
         this.days=days;
-        this.plan_type=plan_type;
-        this.ott_benefits=ott_benefits;
         this.planInfo=planInfo;
-        this.planType=plan_type;
+        this.planType=planType;
+        this.ottBenefits=ottBenefits;
     }
 
 
